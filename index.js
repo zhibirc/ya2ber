@@ -1,3 +1,9 @@
-/**
- * Created by zhibirc on 8/15/17.
- */
+'use strict';
+
+const testSuit = require('./test/main');
+
+
+class Chat {}
+
+
+module.exports = Chat;

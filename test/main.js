@@ -45,10 +45,10 @@ class TestSuit {
      */
     getOptimizationStatus ( fn, fnName ) {
         if ( fn ) {
-            v8.helpers.printStatus(fn, fnName);
+            v8.helpers.printStatus(fn, fnName || fn.name);
         } else if ( this.functions ) {
             this.functions.forEach(fn => {
-                v8.helpers.printStatus(fn);
+                v8.helpers.printStatus(fn, fn.name);
             });
         } else {
             debug('No functions for test!');
@@ -63,7 +63,7 @@ class TestSuit {
      * @param {string} [fnName] function name
      */
     testOptimization ( fn, fnName ) {
-
+        v8.helpers.testOptimization(fn, fnName || fn.name);
     }
 
 
@@ -75,7 +75,7 @@ class TestSuit {
      * @param {Object[]} [params] function parameters
      */
     createBenchmark ( count, fn, params ) {
-
+        v8.helpers.benchmark(count, fn, params);
     }
 }
 
