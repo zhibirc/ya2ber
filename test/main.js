@@ -7,6 +7,13 @@
 const v8  = require('v8-natives'),
     debug = require('debug')('test');
 
+if ( !v8.isNative() ) {
+    debug('You must run this with the --allow-natives-syntax command line.');
+    process.exit(0);
+}
+
+debug(`Node is using v8 version: ${v8.helpers.getV8Version()}`);
+
 
 class TestSuit {
     /**
@@ -30,8 +37,45 @@ class TestSuit {
     }
 
 
-    testFunctions () {
-        this.functions.forEach();
+    /**
+     * Get the function optimization result.
+     *
+     * @param {function} fn function which optimization status must be checked
+     * @param {string} [fnName] function name
+     */
+    getOptimizationStatus ( fn, fnName ) {
+        if ( fn ) {
+            v8.helpers.printStatus(fn, fnName);
+        } else if ( this.functions ) {
+            this.functions.forEach(fn => {
+                v8.helpers.printStatus(fn);
+            });
+        } else {
+            debug('No functions for test!');
+        }
+    }
+
+
+    /**
+     * Test ability for v8 engine to optimize the function.
+     *
+     * @param {function} fn function for test optimization
+     * @param {string} [fnName] function name
+     */
+    testOptimization ( fn, fnName ) {
+
+    }
+
+
+    /**
+     * Benchmarking given function.
+     *
+     * @param {number} count amount of iterations
+     * @param {function} fn function for benchmark
+     * @param {Object[]} [params] function parameters
+     */
+    createBenchmark ( count, fn, params ) {
+
     }
 }
 
