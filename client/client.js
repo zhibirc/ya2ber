@@ -2,6 +2,7 @@
 
 const net = require('net');
 const readline = require('readline');
+const util = require('util');
 const config = require('../server/config');
 
 const DEFAULT_USER_NAME = 'Anonymous';
@@ -18,6 +19,9 @@ const cli = readline.createInterface({
     prompt: getPS1Value()
 });
 
+// TODO: will be required for auth later
+const question = util.promisify(cli.question).bind(cli);
+
 cli.prompt();
 
 function connectionListener () {
@@ -26,6 +30,10 @@ function connectionListener () {
 
 client.on('data', data => {
     showMessage(data.toString());
+});
+
+cli.on('line', input => {
+    client.write(input);
 });
 
 function getPS1Value () {
