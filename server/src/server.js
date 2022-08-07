@@ -1,7 +1,7 @@
 'use strict';
 
 const net = require('net');
-const parseMessage = require('./parse-message');
+const parseMessage = require('./tools/parse-message');
 
 const connectionOptions = {
     // allowHalfOpen: true,
@@ -44,18 +44,26 @@ function onConnection ( socket ) {
     socket.on(socketEvents.MESSAGE, message => {
         // TODO: replace passing through with actual parsing/sanitization
         message = parseMessage(message);
-        multicast(message);
+        // as far as we are not Echo-server, we shouldn't send message back to the sender, so multicast it
+        const receivers = [...connectedClientsMap.values()].filter(item => item !== socket);
+        multicast(message, receivers);
     });
 
     socket.on(socketEvents.DISCONNECT, hadError => {
         connectedClientsMap.delete(socket);
         console.log('Client disconnected');
-        multicast('[Server] someone left the chat');
+        broadcast('/server someone left the chat');
     });
 }
 
-function multicast ( message ) {
+function broadcast ( message ) {
     connectedClientsMap.forEach(socket => {
+        socket.write(message);
+    });
+}
+
+function multicast ( message, socketList ) {
+    socketList.forEach(socket => {
         socket.write(message);
     });
 }
