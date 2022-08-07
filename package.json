@@ -1,5 +1,5 @@
 {
-  "name": "chat",
+  "name": "chyat",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,13 +8,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "GPL-3.0-only",
   "dependencies": {
-    "socket.io": "^2.0.3"
-  },
-  "devDependencies": {
-    "cjs-eslint-config": "^1.1.0",
-    "debug": "^3.0.1",
-    "v8-natives": "^1.0.2"
+    "pg": "^8.7.3"
   }
 }
