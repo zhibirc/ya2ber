@@ -2,6 +2,7 @@
 
 const net = require('net');
 const parseMessage = require('./tools/parse-message');
+const packMessage = require('./tools/pack-message');
 
 const connectionOptions = {
     // allowHalfOpen: true,
@@ -12,6 +13,11 @@ const connectionOptions = {
 const socketEvents = {
     MESSAGE:    'data',
     DISCONNECT: 'close'
+};
+
+const messageTypes = {
+    MESSAGE: 'message',
+    SYSTEM:  'system'
 };
 
 /**
@@ -41,9 +47,9 @@ function onConnection ( socket ) {
     connectedClientsMap.set(socket, socket);
     console.log(`Client connected`);
 
-    socket.on(socketEvents.MESSAGE, message => {
-        // TODO: replace passing through with actual parsing/sanitization
-        message = parseMessage(message);
+    socket.on(socketEvents.MESSAGE, input => {
+        // TODO: add handling for received fields
+        const {type, command, message, token} = parseMessage(input);
         // as far as we are not Echo-server, we shouldn't send message back to the sender, so multicast it
         const receivers = [...connectedClientsMap.values()].filter(item => item !== socket);
         multicast(message, receivers);
@@ -57,12 +63,16 @@ function onConnection ( socket ) {
 }
 
 function broadcast ( message ) {
+    message = packMessage(message, messageTypes.SYSTEM, connectedClientsMap.size);
+
     connectedClientsMap.forEach(socket => {
         socket.write(message);
     });
 }
 
 function multicast ( message, socketList ) {
+    message = packMessage(message, messageTypes.MESSAGE, connectedClientsMap.size);
+
     socketList.forEach(socket => {
         socket.write(message);
     });

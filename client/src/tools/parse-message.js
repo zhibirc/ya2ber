@@ -1,25 +1,35 @@
 'use strict';
 
+const messageTypes = {
+    MESSAGE: 'message',
+    SYSTEM:  'system'
+};
+
 /**
  * Parse/sanitize of given incoming message.
  *
- * @param {string|Buffer} message
+ * @param {string|Buffer} input
  *
  * @return {Object} parsed message
  */
-function parseMessage ( message ) {
-    message = message.toString().trim();
+function parseMessage ( input ) {
+    input = input.toString().trim();
+    let message;
 
-    if ( /^\/(?:server|system) /i.test(message) ) {
-        return {
-            isSystem: true,
-            message: message.slice(message.indexOf(' ')).trimStart()
-        };
+    try {
+        message = JSON.parse(input);
+    } catch ( exception ) {
+        console.error(exception.message);
+        // TODO: think about improving error handling here
     }
 
+    const {message: messageText, type, online, token} = message;
+
     return {
-        isSystem: false,
-        message
+        message: messageText,
+        isSystem: type === messageTypes.SYSTEM,
+        online,
+        token
     };
 }
 

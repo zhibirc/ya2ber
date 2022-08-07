@@ -3,12 +3,22 @@
 /**
  * Parse/sanitize of given incoming message.
  *
- * @param {string|Buffer} message
+ * @param {string|Buffer} input
  *
- * @return {string} parsed message
+ * @return {Object} parsed message
  */
-function parseMessage ( message ) {
-    // TODO: currently it's an identity function, should be replaced with some parsing algorithm
+function parseMessage ( input ) {
+    input = input.toString().trim();
+    let message;
+
+    try {
+        message = JSON.parse(input);
+    } catch ( exception ) {
+        console.error(exception.message);
+        // TODO: think about improving error handling here
+    }
+
+    // TODO: add additional sanitizing
     return message;
 }
 

@@ -15,9 +15,9 @@ Example of client's message:
 
 ```json
 {
+    "message": "Hello, world!",
     "type": "message",
     "command": "/username",
-    "message": "Hello, world!",
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 }
 ```
@@ -26,6 +26,7 @@ Example of server's message:
 
 ```json
 {
+    "message": "someone left the chat",
     "type": "system",
     "online": 5,
     "token": "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_a"

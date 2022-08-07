@@ -5,22 +5,31 @@ const readline = require('readline');
 const util = require('util');
 const getDate = require('./tools/get-iso8601-date');
 const parseMessage = require('./tools/parse-message');
+const packMessage = require('./tools/pack-message');
 
 const DEFAULT_USER_NAME = 'Anonymous';
+
+const messageTypes = {
+    MESSAGE: 'message',
+    SYSTEM:  'system'
+};
 
 // TODO: will be required for auth later
 // const question = util.promisify(cli.question).bind(cli);
 
 class Client {
+    #info;
     #client;
     #port;
     #cli;
-    #username;
 
     constructor ( port, colors) {
         this.#port = port;
         this.colors = colors;
-        this.#username = DEFAULT_USER_NAME;
+        this.#info = {
+            userName: DEFAULT_USER_NAME,
+            online: null
+        };
         this.#client = net.createConnection({
             port: this.#port
         }, () => this.showSystemMessage('Connect to server'));
@@ -29,17 +38,19 @@ class Client {
             output: process.stdout
         });
         this.#client.on('data', data => {
-            const {isSystem, message} = parseMessage(data);
+            const {message, isSystem, online, token} = parseMessage(data);
+            this.#info.online = online;
+            this.#cli.setPrompt(`(online: ${this.#info.online}) > `);
             isSystem
                 ? this.showSystemMessage(message)
                 : this.showChatMessage(message);
         });
-        this.#cli.on('line', input => {
-            readline.clearLine(process.stdout, 1);
+        this.#cli.on('line', message => {
+            const input = packMessage(message, messageTypes.MESSAGE, '', '');
             this.#client.write(input, () => {
                 readline.moveCursor(process.stdout, 0, -1);
                 readline.clearScreenDown(process.stdout);
-                this.showChatMessage(input, true);
+                this.showChatMessage(message, true);
             });
         });
         this.#cli.prompt();
