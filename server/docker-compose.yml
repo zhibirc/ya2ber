@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+    db:
+        container_name: chyat-db
+        image: postgres:14.4
+        restart: unless-stopped
+        environment:
+            - POSTGRES_DB=${DATABASE_NAME}
+            - POSTGRES_USER=${DATABASE_USER}
+            - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+        ports:
+            - "5432:5432"
+        volumes:
+            - ./src/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    server:
+        container_name: chyat-server
+        build:
+            context: .
+            dockerfile: Dockerfile
+        environment:
+            - PORT=${PORT}
+        restart: unless-stopped
+        depends_on:
+            - db
+        ports:
+            - "8080:8080"

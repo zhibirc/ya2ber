@@ -1,10 +1,8 @@
 #------------------------------------------------------
-# Setup server environment with Node.js and PostgreSQL
+# Setup Node.js environment for application deployment
 #------------------------------------------------------
 
-FROM alpine:3.15.5
-
-RUN apk add nodejs npm
+FROM node:16.16.0
 
 ENV PORT=8080
 ENV NODE_ENV=production
