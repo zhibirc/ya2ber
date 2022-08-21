@@ -14,15 +14,19 @@ const messageTypes = {
     SYSTEM:  'system'
 };
 
+const RPCList = {
+    AUTH: 'auth'
+};
+
 class Client {
-    #userData;
     #client;
+    #user;
     #system;
 
     constructor ( port, colors ) {
         this.colors = colors;
 
-        this.#userData = {
+        this.#user = {
             userName: DEFAULT_USER_NAME,
             loggedIn: false,
             environment: {
@@ -35,7 +39,8 @@ class Client {
             cli: readline.createInterface({
                 input: process.stdin,
                 output: process.stdout
-            })
+            }),
+            stdoutMuted: false
         };
         this.#system.question = util.promisify(this.#system.cli.question).bind(this.#system.cli);
 
@@ -43,12 +48,12 @@ class Client {
             port: this.#system.port
         }, () => {
             this.showSystemMessage('Connect to server\n', null, false);
-            this.#userData.loggedIn || this.showWelcomeFlow();
+            this.#user.loggedIn || this.execWelcomeFlow();
         });
 
         this.#client.on('data', data => {
             const {message, isSystem, online, token} = parseMessage(data);
-            this.#userData.environment.usersOnline = online;
+            this.#user.environment.usersOnline = online;
             this.#system.cli.setPrompt(`(online: ${online}) > `);
             isSystem
                 ? this.showSystemMessage(message)
@@ -68,14 +73,19 @@ class Client {
         return `${getDate()} ${userName} > `;
     }
 
-    async showWelcomeFlow () {
+    async execWelcomeFlow () {
         console.log(this.colors.bold.yellow(`👋 Hello, ${DEFAULT_USER_NAME} 👤! Welcome to ya2ber!`));
         console.log(this.colors.underline.yellow(`You can sign in if you're already registered or sign up if it's your first visit.\n`));
 
         try {
             const username = await this.#system.question('Username: ');
             const password = await this.#system.question('Password: ');
-            console.log(username, password);
+            // remove last entered value (password) from terminal history
+            this.#system.cli.history.splice(0, 1);
+            const input = packMessage([username, password], messageTypes.SYSTEM, RPCList.AUTH, '');
+            this.#client.write(input, () => {
+                // TODO
+            });
         } catch {}
 
         this.#system.cli.prompt();

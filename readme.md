@@ -1,13 +1,17 @@
 # ya2ber
 
-CLI chat to just chat. No ads, no statistics collection, no special terms, no unknown third-party services, no tricky interfaces... no bullshit.
+CLI chat to just chat. No ads, no statistics collection, no special terms, no unknown third-party services, no spies, no tricky interfaces... no bullshit.
 
 ## Features
 
-1. Shows how many visitors are in the chat. Currently, this info is shown in PS1 prompt.
-2. Chat members are notified when someone left.
-3. There are 2 message categories/types - system (including ones from server) and just chat messages.
-4. Client and server use JSON as data format for transmitting data to each other. [See](#json-message-schema) how.
+- [x] Shows how many visitors are in the chat. Currently, this info is shown in PS1 prompt.
+- [x] Chat members are notified when someone left.
+- [x] There are 2 message categories/types - system (including ones from server) and just chat messages.
+- [x] Client and server use JSON as data format for transmitting data to each other. [See](#json-message-schema) how.
+- [ ] Entering password is masking by "*" and isn't stored in history.
+- [ ] Server doesn't store _any_ message history. Instead, client could store history locally as an option.
+
+## CLI options
 
 ## JSON message schema
 
