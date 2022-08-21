@@ -14,38 +14,47 @@ const messageTypes = {
     SYSTEM:  'system'
 };
 
-// TODO: will be required for auth later
-// const question = util.promisify(cli.question).bind(cli);
-
 class Client {
-    #info;
+    #userData;
     #client;
-    #port;
-    #cli;
+    #system;
 
-    constructor ( port, colors) {
-        this.#port = port;
+    constructor ( port, colors ) {
         this.colors = colors;
-        this.#info = {
+
+        this.#userData = {
             userName: DEFAULT_USER_NAME,
-            online: null
+            loggedIn: false,
+            environment: {
+                usersOnline: null
+            }
         };
+
+        this.#system = {
+            port,
+            cli: readline.createInterface({
+                input: process.stdin,
+                output: process.stdout
+            })
+        };
+        this.#system.question = util.promisify(this.#system.cli.question).bind(this.#system.cli);
+
         this.#client = net.createConnection({
-            port: this.#port
-        }, () => this.showSystemMessage('Connect to server'));
-        this.#cli = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
+            port: this.#system.port
+        }, () => {
+            this.showSystemMessage('Connect to server\n', null, false);
+            this.#userData.loggedIn || this.showWelcomeFlow();
         });
+
         this.#client.on('data', data => {
             const {message, isSystem, online, token} = parseMessage(data);
-            this.#info.online = online;
-            this.#cli.setPrompt(`(online: ${this.#info.online}) > `);
+            this.#userData.environment.usersOnline = online;
+            this.#system.cli.setPrompt(`(online: ${online}) > `);
             isSystem
                 ? this.showSystemMessage(message)
                 : this.showChatMessage(message);
         });
-        this.#cli.on('line', message => {
+        this.#system.cli.on('line', message => {
             const input = packMessage(message, messageTypes.MESSAGE, '', '');
             this.#client.write(input, () => {
                 readline.moveCursor(process.stdout, 0, -1);
@@ -53,11 +62,23 @@ class Client {
                 this.showChatMessage(message, true);
             });
         });
-        this.#cli.prompt();
     }
 
     getExtendedPrompt ( userName ) {
         return `${getDate()} ${userName} > `;
+    }
+
+    async showWelcomeFlow () {
+        console.log(this.colors.bold.yellow(`👋 Hello, ${DEFAULT_USER_NAME} 👤! Welcome to ya2ber!`));
+        console.log(this.colors.underline.yellow(`You can sign in if you're already registered or sign up if it's your first visit.\n`));
+
+        try {
+            const username = await this.#system.question('Username: ');
+            const password = await this.#system.question('Password: ');
+            console.log(username, password);
+        } catch {}
+
+        this.#system.cli.prompt();
     }
 
     showChatMessage ( message, self ) {
@@ -69,7 +90,7 @@ class Client {
             ? console.log(this.colors.cyan(`${this.getExtendedPrompt('me')}${message}`))
             : console.log(this.colors.green(`${this.getExtendedPrompt(DEFAULT_USER_NAME)}${message}`));
 
-        this.#cli.prompt(true);
+        this.#system.cli.prompt(true);
     }
 
     /**
@@ -77,8 +98,9 @@ class Client {
      *
      * @param {string} message - system level event
      * @param {Error} [error] - error object which causes an event
+     * @param {boolean} [showPrompt=true] - should CLI prompt be shown or not
      */
-    showSystemMessage ( message, error ) {
+    showSystemMessage ( message, error, showPrompt = true ) {
         process.stdout.clearLine(0);
         process.stdout.cursorTo(0);
 
@@ -89,11 +111,11 @@ class Client {
             console.log(this.colors.grey(message));
         }
 
-        this.#cli.prompt(true);
+        showPrompt && this.#system.cli.prompt(true);
     }
 
     exit () {
-        this.#cli.close();
+        this.#system.cli.close();
         this.#client.destroy();
     }
 }

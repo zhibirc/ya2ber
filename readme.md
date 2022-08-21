@@ -1,4 +1,4 @@
-# chyat
+# ya2ber
 
 CLI chat to just chat. No ads, no statistics collection, no special terms, no unknown third-party services, no tricky interfaces... no bullshit.
 

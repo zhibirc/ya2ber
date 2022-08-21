@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
     db:
-        container_name: chyat-db
+        container_name: ya2ber-db
         image: postgres:14.4
         restart: unless-stopped
         environment:
@@ -15,7 +15,7 @@ services:
             - ./src/database/init.sql:/docker-entrypoint-initdb.d/init.sql
 
     server:
-        container_name: chyat-server
+        container_name: ya2ber-server
         build:
             context: .
             dockerfile: Dockerfile
