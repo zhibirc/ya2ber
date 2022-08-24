@@ -8,7 +8,7 @@ CLI chat to just chat. No ads, no statistics collection, no special terms, no un
 - [x] Chat members are notified when someone left.
 - [x] There are 2 message categories/types - system (including ones from server) and just chat messages.
 - [x] Client and server use JSON as data format for transmitting data to each other. [See](#json-message-schema) how.
-- [ ] Entering password is masking by "*" and isn't stored in history.
+- [x] Entering of password is hidden (like many other CLI applications do, including `sudo`) and isn't stored in history.
 - [ ] Server doesn't store _any_ message history. Instead, client could store history locally as an option.
 
 ## CLI options

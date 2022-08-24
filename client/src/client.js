@@ -3,6 +3,7 @@
 const net = require('net');
 const readline = require('readline');
 const util = require('util');
+const {muteStdout, unmuteStdout} = require('./tools/interceptor');
 const getDate = require('./tools/get-iso8601-date');
 const parseMessage = require('./tools/parse-message');
 const packMessage = require('./tools/pack-message');
@@ -22,27 +23,28 @@ class Client {
     #client;
     #user;
     #system;
+    #cli;
 
     constructor ( port, colors ) {
         this.colors = colors;
 
         this.#user = {
-            userName: DEFAULT_USER_NAME,
+            name: DEFAULT_USER_NAME,
             loggedIn: false,
             environment: {
                 usersOnline: null
             }
         };
 
+        this.#cli = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+
         this.#system = {
             port,
-            cli: readline.createInterface({
-                input: process.stdin,
-                output: process.stdout
-            }),
-            stdoutMuted: false
+            question: util.promisify(this.#cli.question).bind(this.#cli)
         };
-        this.#system.question = util.promisify(this.#system.cli.question).bind(this.#system.cli);
 
         this.#client = net.createConnection({
             port: this.#system.port
@@ -53,13 +55,15 @@ class Client {
 
         this.#client.on('data', data => {
             const {message, isSystem, online, token} = parseMessage(data);
+
             this.#user.environment.usersOnline = online;
-            this.#system.cli.setPrompt(`(online: ${online}) > `);
+            this.#cli.setPrompt(`(online: ${online}) > `);
             isSystem
                 ? this.showSystemMessage(message)
                 : this.showChatMessage(message);
         });
-        this.#system.cli.on('line', message => {
+
+        this.#cli.on('line', message => {
             const input = packMessage(message, messageTypes.MESSAGE, '', '');
             this.#client.write(input, () => {
                 readline.moveCursor(process.stdout, 0, -1);
@@ -74,21 +78,32 @@ class Client {
     }
 
     async execWelcomeFlow () {
-        console.log(this.colors.bold.yellow(`👋 Hello, ${DEFAULT_USER_NAME} 👤! Welcome to ya2ber!`));
-        console.log(this.colors.underline.yellow(`You can sign in if you're already registered or sign up if it's your first visit.\n`));
+        console.log(this.colors.bold.yellow(`👋 Hello, ${this.#user.name} 👤! Welcome to ya2ber!`));
 
-        try {
-            const username = await this.#system.question('Username: ');
-            const password = await this.#system.question('Password: ');
-            // remove last entered value (password) from terminal history
-            this.#system.cli.history.splice(0, 1);
-            const input = packMessage([username, password], messageTypes.SYSTEM, RPCList.AUTH, '');
-            this.#client.write(input, () => {
-                // TODO
-            });
-        } catch {}
+        if ( this.#user.loggedIn ) {
 
-        this.#system.cli.prompt();
+        } else {
+            console.log(this.colors.yellow(`You can sign in if you're already registered or sign up if it's your first visit.\n`));
+            try {
+                const username = await this.#system.question('Username: ');
+
+                const passwordQuery = 'Password: ';
+                const handler = muteStdout(this.#cli, passwordQuery);
+                const password = await this.#system.question(passwordQuery);
+                unmuteStdout(this.#cli, handler);
+
+                // remove last entered value (password) from terminal history
+                this.#cli.history.splice(0, 1);
+                const input = packMessage([username, password], messageTypes.SYSTEM, RPCList.AUTH);
+
+                this.#client.write(input, () => {
+                    // TODO
+                });
+            } catch {}
+        }
+
+
+        this.#cli.prompt();
     }
 
     showChatMessage ( message, self ) {
@@ -100,7 +115,7 @@ class Client {
             ? console.log(this.colors.cyan(`${this.getExtendedPrompt('me')}${message}`))
             : console.log(this.colors.green(`${this.getExtendedPrompt(DEFAULT_USER_NAME)}${message}`));
 
-        this.#system.cli.prompt(true);
+        this.#cli.prompt(true);
     }
 
     /**
@@ -121,11 +136,11 @@ class Client {
             console.log(this.colors.grey(message));
         }
 
-        showPrompt && this.#system.cli.prompt(true);
+        showPrompt && this.#cli.prompt(true);
     }
 
     exit () {
-        this.#system.cli.close();
+        this.#cli.close();
         this.#client.destroy();
     }
 }
