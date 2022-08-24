@@ -2,6 +2,10 @@
 
 CLI chat to just chat. No ads, no statistics collection, no special terms, no unknown third-party services, no spies, no tricky interfaces... no bullshit.
 
+## Etymology
+
+**ya2ber** is just derived from _yabber_, which is the synonym for _jabber_, which is the synonym for usual _talk_.
+
 ## Features
 
 - [x] Shows how many visitors are in the chat. Currently, this info is shown in PS1 prompt.

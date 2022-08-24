@@ -79,7 +79,7 @@ class Client {
             try {
                 const username = await this.#system.question('Username: ');
 
-                const passwordQuery = 'Password: ';
+                const passwordQuery = 'Password: 🔐 ';
                 const handler = muteStdout(this.#cli, passwordQuery);
                 const password = await this.#system.question(passwordQuery);
                 unmuteStdout(this.#cli, handler);
