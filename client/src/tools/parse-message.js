@@ -1,10 +1,5 @@
 'use strict';
 
-const messageTypes = {
-    MESSAGE: 'message',
-    SYSTEM:  'system'
-};
-
 /**
  * Parse/sanitize of given incoming message.
  *
@@ -14,22 +9,20 @@ const messageTypes = {
  */
 function parseMessage ( input ) {
     input = input.toString().trim();
-    let message;
+    let data;
 
     try {
-        message = JSON.parse(input);
+        data = JSON.parse(input);
     } catch ( exception ) {
         console.error(exception.message);
         // TODO: think about improving error handling here
     }
 
-    const {message: messageText, type, online, token} = message;
-
     return {
-        message: messageText,
-        isSystem: type === messageTypes.SYSTEM,
-        online,
-        token
+        message: data.message,
+        type:    data.type,
+        online:  data.online,
+        token:   data.token
     };
 }
 

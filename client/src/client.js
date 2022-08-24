@@ -7,17 +7,9 @@ const {muteStdout, unmuteStdout} = require('./tools/interceptor');
 const getDate = require('./tools/get-iso8601-date');
 const parseMessage = require('./tools/parse-message');
 const packMessage = require('./tools/pack-message');
+const { message: { MESSAGE, SYSTEM }, RPC: { AUTH } } = require('./types');
 
 const DEFAULT_USER_NAME = 'Anonymous';
-
-const messageTypes = {
-    MESSAGE: 'message',
-    SYSTEM:  'system'
-};
-
-const RPCList = {
-    AUTH: 'auth'
-};
 
 class Client {
     #client;
@@ -54,17 +46,17 @@ class Client {
         });
 
         this.#client.on('data', data => {
-            const {message, isSystem, online, token} = parseMessage(data);
+            const {message, type, online, token} = parseMessage(data);
 
             this.#user.environment.usersOnline = online;
             this.#cli.setPrompt(`(online: ${online}) > `);
-            isSystem
+            type === SYSTEM
                 ? this.showSystemMessage(message)
                 : this.showChatMessage(message);
         });
 
         this.#cli.on('line', message => {
-            const input = packMessage(message, messageTypes.MESSAGE, '', '');
+            const input = packMessage(message, MESSAGE, '', '');
             this.#client.write(input, () => {
                 readline.moveCursor(process.stdout, 0, -1);
                 readline.clearScreenDown(process.stdout);
@@ -94,8 +86,8 @@ class Client {
 
                 // remove last entered value (password) from terminal history
                 this.#cli.history.splice(0, 1);
-                const input = packMessage([username, password], messageTypes.SYSTEM, RPCList.AUTH);
-
+                const input = packMessage([username, password], SYSTEM, AUTH);
+                console.log(input);
                 this.#client.write(input, () => {
                     // TODO
                 });

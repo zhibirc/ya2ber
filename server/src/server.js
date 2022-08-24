@@ -3,21 +3,15 @@
 const net = require('net');
 const parseMessage = require('./tools/parse-message');
 const packMessage = require('./tools/pack-message');
+const Database = require('./services/pg');
+const { message: { MESSAGE, SYSTEM }, RPC: { AUTH } } = require('./types');
+
+const db = new Database();
 
 const connectionOptions = {
     // allowHalfOpen: true,
     // noDelay: true,
     // keepAlive: true
-};
-
-const socketEvents = {
-    MESSAGE:    'data',
-    DISCONNECT: 'close'
-};
-
-const messageTypes = {
-    MESSAGE: 'message',
-    SYSTEM:  'system'
 };
 
 /**
@@ -47,15 +41,22 @@ function onConnection ( socket ) {
     connectedClientsMap.set(socket, socket);
     console.log(`Client connected`);
 
-    socket.on(socketEvents.MESSAGE, input => {
+    socket.on('data', input => {
         // TODO: add handling for received fields
-        const {type, command, message, token} = parseMessage(input);
-        // as far as we are not Echo-server, we shouldn't send message back to the sender, so multicast it
-        const receivers = [...connectedClientsMap.values()].filter(item => item !== socket);
-        multicast(message, receivers);
+        const {message, type, command, token} = parseMessage(input);
+        if ( type === SYSTEM ) {
+            if ( command === AUTH ) {
+
+            }
+        } else {
+            // TODO: rework after auth fully implementing
+            // as far as we are not Echo-server, we shouldn't send message back to the sender, so multicast it
+            const receivers = [...connectedClientsMap.values()].filter(item => item !== socket);
+            multicast(message, receivers);
+        }
     });
 
-    socket.on(socketEvents.DISCONNECT, hadError => {
+    socket.on('close', hadError => {
         connectedClientsMap.delete(socket);
         console.log('Client disconnected');
         broadcast('/server someone left the chat');
@@ -63,7 +64,7 @@ function onConnection ( socket ) {
 }
 
 function broadcast ( message ) {
-    message = packMessage(message, messageTypes.SYSTEM, connectedClientsMap.size);
+    message = packMessage(message, SYSTEM, connectedClientsMap.size);
 
     connectedClientsMap.forEach(socket => {
         socket.write(message);
@@ -71,7 +72,7 @@ function broadcast ( message ) {
 }
 
 function multicast ( message, socketList ) {
-    message = packMessage(message, messageTypes.MESSAGE, connectedClientsMap.size);
+    message = packMessage(message, MESSAGE, connectedClientsMap.size);
 
     socketList.forEach(socket => {
         socket.write(message);
