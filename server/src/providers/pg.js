@@ -1,16 +1,16 @@
 const { Pool } = require('pg');
-const errorCodes = require('./pgErrorCodes');
+const errorCodes = require('../constants/pg-error-codes');
 
-class Pg {
+class PgProvider {
     #pool;
     #logger;
 
-    constructor ( config, logger ) {
+    constructor ( logger ) {
         this.#pool = new Pool({
             user:     process.env.DATABASE_USER,
             host:     process.env.DATABASE_HOST,
             database: process.env.DATABASE_NAME,
-            password: process.env.DATABASE_PASSWORD,
+            password: String(process.env.DATABASE_PASSWORD),
             port:     process.env.DATABASE_PORT
         });
         this.#logger = logger || console;
@@ -39,6 +39,12 @@ class Pg {
 
         return result ? result?.rows[0] : null;
     }
+
+    async addUser ( userInfo ) {
+        const { email, password, role } = userInfo;
+
+        await this.#query('INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3)', [email, password, role]);
+    }
 }
 
-module.exports = Pg;
+module.exports = PgProvider;

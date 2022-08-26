@@ -14,6 +14,7 @@ CLI chat to just chat. No ads, no statistics collection, no special terms, no un
 - [x] Client and server use JSON as data format for transmitting data to each other. [See](#json-message-schema) how.
 - [x] Entering of password is hidden (like many other CLI applications do, including `sudo`) and isn't stored in history.
 - [ ] Server doesn't store _any_ message history. Instead, client could store history locally as an option.
+- [ ] Prevention of _typosquatting_ in usernames.
 
 ## CLI options
 

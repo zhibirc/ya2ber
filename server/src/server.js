@@ -3,8 +3,9 @@
 const net = require('net');
 const parseMessage = require('./tools/parse-message');
 const packMessage = require('./tools/pack-message');
-const Database = require('./services/pg');
-const { message: { MESSAGE, SYSTEM }, RPC: { AUTH } } = require('./types');
+const Database = require('./providers/pg');
+const authController = require('./controllers/auth');
+const { message: { MESSAGE, SYSTEM }, RPC: { AUTH } } = require('./constants/types');
 
 const db = new Database();
 
@@ -41,12 +42,12 @@ function onConnection ( socket ) {
     connectedClientsMap.set(socket, socket);
     console.log(`Client connected`);
 
-    socket.on('data', input => {
+    socket.on('data', async input => {
         // TODO: add handling for received fields
         const {message, type, command, token} = parseMessage(input);
         if ( type === SYSTEM ) {
             if ( command === AUTH ) {
-
+                const result = await authController(socket, message, db);
             }
         } else {
             // TODO: rework after auth fully implementing
