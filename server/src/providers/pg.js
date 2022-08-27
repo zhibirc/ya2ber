@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
 const errorCodes = require('../constants/pg-error-codes');
+const hasher = require('../utilities/hasher');
 
 class PgProvider {
     #pool;
@@ -41,9 +42,18 @@ class PgProvider {
     }
 
     async addUser ( userInfo ) {
-        const { email, password, role } = userInfo;
+        const {
+            user_name,
+            password_hash,
+            signup_date,
+            last_visit,
+            last_ip
+        } = userInfo;
 
-        await this.#query('INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3)', [email, password, role]);
+        await this.#query(
+            'INSERT INTO users (user_name, password_hash, signup_date, last_visit, last_ip) VALUES ($1, $2, $3, $4, $5)',
+            [user_name, password_hash, signup_date, last_visit, last_ip]
+        );
     }
 }
 

@@ -36,4 +36,5 @@ class Hasher {
     }
 }
 
-module.exports = Hasher;
+// singleton because it's just a service non-configurable object
+module.exports = new Hasher();

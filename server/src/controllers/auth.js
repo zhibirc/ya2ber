@@ -1,5 +1,5 @@
-const { auth: authErrors } = require('../constants/server-responses');
-const Hasher = require('../tools/hasher');
+const { auth: authStatus } = require('../constants/server-responses');
+const hasher = require('../utilities/hasher');
 
 const reservedPatterns = [
     /^.*admin.*$/i,
@@ -19,7 +19,7 @@ const USERNAME_LENGTH_RANGE = [4, 20];
  */
 async function auth ( socket, data, db ) {
     if ( !Array.isArray(data) || data.length !== 2 ) {
-        return authErrors.MALFORMED_DATA;
+        return {message: authStatus.MALFORMED_DATA, error: true};
     }
     let [login, password] = data;
 
@@ -34,23 +34,25 @@ async function auth ( socket, data, db ) {
     } else { // registration
         // check basic constraints for login
         if ( login.length < USERNAME_LENGTH_RANGE[0] || login.length > USERNAME_LENGTH_RANGE[1] ) {
-            return authErrors.INVALID_USERNAME_LENGTH;
+            return {message: authStatus.INVALID_USERNAME_LENGTH, error: true};
         } else if ( reservedPatterns.some(pattern => pattern.test(login)) ) {
-            return authErrors.IMPOSTOR_DETECTED;
+            return {message: authStatus.IMPOSTOR_DETECTED, error: true};
         }
         // check basic constraints for password
         if ( !passwordPattern.test(password) ) {
-            return authErrors.INVALID_PASSWORD_FORMAT;
+            return {message: authStatus.INVALID_PASSWORD_FORMAT, error: true};
         }
 
         await db.addUser({
             user_name: login,
-            password_hash: new Hasher().hash(password),
+            password_hash: hasher.hash(password),
             // user_role: ROLE_USER,
             signup_date: new Date(),
             last_visit: new Date(),
             last_ip: socket.remoteAddress
         });
+
+        return {message: authStatus.SIGNUP_SUCCESSFUL};
     }
 
 

@@ -3,6 +3,7 @@
 const net = require('net');
 const readline = require('readline');
 const util = require('util');
+const icons = require('../../icons.json');
 const {muteStdout, unmuteStdout} = require('./tools/interceptor');
 const getDate = require('./tools/get-iso8601-date');
 const parseMessage = require('./tools/parse-message');
@@ -70,7 +71,7 @@ class Client {
     }
 
     async execWelcomeFlow () {
-        console.log(this.colors.bold.yellow(`👋 Hello, ${this.#user.name} 👤! Welcome to ya2ber!`));
+        console.log(this.colors.bold.yellow(`${icons.welcome} Hello, ${this.#user.name} ${icons.person}! Welcome to ya2ber!`));
 
         if ( this.#user.loggedIn ) {
 
@@ -79,7 +80,7 @@ class Client {
             try {
                 const username = await this.#system.question('Username: ');
 
-                const passwordQuery = 'Password: 🔐 ';
+                const passwordQuery = `Password: ${icons.secure} `;
                 const handler = muteStdout(this.#cli, passwordQuery);
                 const password = await this.#system.question(passwordQuery);
                 unmuteStdout(this.#cli, handler);

@@ -6,6 +6,7 @@
  * @param {string|Buffer} input
  * @example
  * {"message":["john","12345"],"type":"system","command":"auth"}
+ *
  * @return {Object} parsed message
  */
 function parseMessage ( input ) {
@@ -23,8 +24,7 @@ function parseMessage ( input ) {
     return {
         message: data.message,
         type:    data.type,
-        command: data.command,
-        token:   data.token
+        command: data.command
     };
 }
 

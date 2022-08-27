@@ -1,8 +1,8 @@
 'use strict';
 
 const net = require('net');
-const parseMessage = require('./tools/parse-message');
-const packMessage = require('./tools/pack-message');
+const parseMessage = require('./utilities/parse-message');
+const packMessage = require('./utilities/pack-message');
 const Database = require('./providers/pg');
 const authController = require('./controllers/auth');
 const { message: { MESSAGE, SYSTEM }, RPC: { AUTH } } = require('./constants/types');
@@ -44,40 +44,46 @@ function onConnection ( socket ) {
 
     socket.on('data', async input => {
         // TODO: add handling for received fields
-        const {message, type, command, token} = parseMessage(input);
+        const {message, type, command} = parseMessage(input);
         if ( type === SYSTEM ) {
             if ( command === AUTH ) {
-                const result = await authController(socket, message, db);
+                const authData = await authController(socket, message, db);
+                unicast(socket, authData.message, SYSTEM, authData.error);
             }
         } else {
             // TODO: rework after auth fully implementing
             // as far as we are not Echo-server, we shouldn't send message back to the sender, so multicast it
             const receivers = [...connectedClientsMap.values()].filter(item => item !== socket);
-            multicast(message, receivers);
+            multicast(receivers, message, MESSAGE);
         }
     });
 
     socket.on('close', hadError => {
         connectedClientsMap.delete(socket);
         console.log('Client disconnected');
-        broadcast('/server someone left the chat');
+        broadcast('Someone left the chat', SYSTEM);
     });
 }
 
-function broadcast ( message ) {
-    message = packMessage(message, SYSTEM, connectedClientsMap.size);
+function broadcast ( message, type ) {
+    message = packMessage(message, type, {online: connectedClientsMap.size});
 
     connectedClientsMap.forEach(socket => {
         socket.write(message);
     });
 }
 
-function multicast ( message, socketList ) {
-    message = packMessage(message, MESSAGE, connectedClientsMap.size);
+function multicast ( socketList, message, type ) {
+    message = packMessage(message, type, {online: connectedClientsMap.size});
 
     socketList.forEach(socket => {
         socket.write(message);
     });
+}
+
+function unicast ( socket, message, type, error ) {
+    message = packMessage(message, type, {online: connectedClientsMap.size, error});
+    socket.write(message);
 }
 
 module.exports = Server;
