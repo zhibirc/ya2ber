@@ -42,15 +42,18 @@ class Client {
         this.#client = net.createConnection({
             port: this.#system.port
         }, () => {
-            this.showSystemMessage('Connect to server\n', null, false);
+            this.showSystemMessage(`${icons.info}  connect to server\n`, null, false);
             this.#user.loggedIn || this.execWelcomeFlow();
         });
 
         this.#client.on('data', data => {
-            const {message, type, online, token} = parseMessage(data);
+            const {message, type, online, error} = parseMessage(data);
 
-            this.#user.environment.usersOnline = online;
-            this.#cli.setPrompt(`(online: ${online}) > `);
+            if ( typeof online === 'number' ) {
+                this.#user.environment.usersOnline = online;
+                this.#cli.setPrompt(`${icons.online} ${colors.grey(online)} > `);
+            }
+
             type === SYSTEM
                 ? this.showSystemMessage(message)
                 : this.showChatMessage(message);
@@ -90,7 +93,8 @@ class Client {
                 const input = packMessage([username, password], SYSTEM, AUTH);
                 console.log(input);
                 this.#client.write(input, () => {
-                    // TODO
+                    readline.moveCursor(process.stdout, 0, -6);
+                    readline.clearScreenDown(process.stdout);
                 });
             } catch {}
         }

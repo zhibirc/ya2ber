@@ -40,7 +40,7 @@ class Server {
 
 function onConnection ( socket ) {
     connectedClientsMap.set(socket, socket);
-    console.log(`Client connected`);
+    console.log(`+ client connected`);
 
     socket.on('data', async input => {
         // TODO: add handling for received fields
@@ -60,8 +60,8 @@ function onConnection ( socket ) {
 
     socket.on('close', hadError => {
         connectedClientsMap.delete(socket);
-        console.log('Client disconnected');
-        broadcast('Someone left the chat', SYSTEM);
+        console.log('- client disconnected');
+        broadcast('someone left the chat', SYSTEM);
     });
 }
 

@@ -19,10 +19,9 @@ function parseMessage ( input ) {
     }
 
     return {
+        ...data,
         message: data.message,
-        type:    data.type,
-        online:  data.online,
-        token:   data.token
+        type:    data.type
     };
 }
 
