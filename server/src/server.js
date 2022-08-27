@@ -5,7 +5,7 @@ const parseMessage = require('./utilities/parse-message');
 const packMessage = require('./utilities/pack-message');
 const Database = require('./providers/pg');
 const authController = require('./controllers/auth');
-const { message: { MESSAGE, SYSTEM }, RPC: { AUTH } } = require('./constants/types');
+const { message: { AUTH, MESSAGE, SYSTEM }} = require('./constants/types');
 
 const db = new Database();
 
@@ -33,7 +33,7 @@ class Server {
 
     start () {
         this.#server.listen(this.#port, () => {
-            console.log(`Server started and bound to port ${this.#port}`);
+            console.log(`server started and bound to port ${this.#port}`);
         });
     }
 }
@@ -43,18 +43,24 @@ function onConnection ( socket ) {
     console.log(`+ client connected`);
 
     socket.on('data', async input => {
+        console.log(input.toString());
+
         // TODO: add handling for received fields
         const {message, type, command} = parseMessage(input);
-        if ( type === SYSTEM ) {
-            if ( command === AUTH ) {
-                const authData = await authController(socket, message, db);
-                unicast(socket, authData.message, SYSTEM, authData.error);
+        if ( type === AUTH ) {
+            const authData = await authController(socket, message, db);
+
+            if ( !authData.error ) {
+                connectedClientsMap.set(socket, {username: authData.username});
             }
+
+            unicast(socket, authData.message, AUTH, authData.error);
         } else {
             // TODO: rework after auth fully implementing
             // as far as we are not Echo-server, we shouldn't send message back to the sender, so multicast it
-            const receivers = [...connectedClientsMap.values()].filter(item => item !== socket);
-            multicast(receivers, message, MESSAGE);
+            const receivers = [...connectedClientsMap.keys()].filter(item => item !== socket);
+            // we serve only authorized clients
+            multicast(receivers, message, MESSAGE, connectedClientsMap.get(socket).username);
         }
     });
 
@@ -73,8 +79,8 @@ function broadcast ( message, type ) {
     });
 }
 
-function multicast ( socketList, message, type ) {
-    message = packMessage(message, type, {online: connectedClientsMap.size});
+function multicast ( socketList, message, type, from ) {
+    message = packMessage(message, type, {online: connectedClientsMap.size, from});
 
     socketList.forEach(socket => {
         socket.write(message);
@@ -82,7 +88,9 @@ function multicast ( socketList, message, type ) {
 }
 
 function unicast ( socket, message, type, error ) {
-    message = packMessage(message, type, {online: connectedClientsMap.size, error});
+    const meta = {error};
+    error || (meta.online = connectedClientsMap.size);
+    message = packMessage(message, type, meta);
     socket.write(message);
 }
 

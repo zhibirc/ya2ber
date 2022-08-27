@@ -43,16 +43,20 @@ async function auth ( socket, data, db ) {
             return {message: authStatus.INVALID_PASSWORD_FORMAT, error: true};
         }
 
-        await db.addUser({
-            user_name: login,
-            password_hash: hasher.hash(password),
-            // user_role: ROLE_USER,
-            signup_date: new Date(),
-            last_visit: new Date(),
-            last_ip: socket.remoteAddress
-        });
+        try {
+            await db.addUser({
+                user_name: login,
+                password_hash: hasher.hash(password),
+                // user_role: ROLE_USER,
+                signup_date: new Date(),
+                last_visit: new Date(),
+                last_ip: socket.remoteAddress
+            });
+        } catch ( exception ) {
+            console.error('error adding user');
+        }
 
-        return {message: authStatus.SIGNUP_SUCCESSFUL};
+        return {message: authStatus.SIGNUP_SUCCESSFUL, username: login};
     }
 
 

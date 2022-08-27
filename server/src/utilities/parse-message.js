@@ -5,7 +5,7 @@
  *
  * @param {string|Buffer} input
  * @example
- * {"message":["john","12345"],"type":"system","command":"auth"}
+ * '{"message":["john","12345"],"type":"auth"}'
  *
  * @return {Object} parsed message
  */
