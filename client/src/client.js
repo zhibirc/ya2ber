@@ -104,9 +104,6 @@ class Client {
                 const handler = muteStdout(this.#cli, passwordQuery);
                 const password = await this.#system.question(passwordQuery);
                 unmuteStdout(this.#cli, handler);
-
-                // remove last entered value (password) from terminal history
-                this.#cli.history.splice(0, 1);
                 const input = packMessage([username, password], AUTH);
                 this.#user.name = username;
                 this.#client.write(input, () => {
