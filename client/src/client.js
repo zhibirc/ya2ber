@@ -42,7 +42,7 @@ class Client {
         this.#client = net.createConnection({
             port: this.#system.port
         }, () => {
-            this.showSystemMessage(`${icons.info}  connect to server\n`, false, false);
+            this.showSystemMessage(`connect to server\n`, false, false);
             this.execWelcomeFlow(true);
         });
 
@@ -92,14 +92,13 @@ class Client {
 
         if ( this.#user.loggedIn ) {
             console.clear();
-            this.showSystemMessage(`${icons.info}  connect to server\n`, false, false);
+            this.showSystemMessage(`connect to server\n`, false, false);
             console.log(this.colors.bold.yellow(`${icons.welcome} Hello, ${this.#user.name} ${icons.person}! Welcome to ya2ber!\n`));
             this.#cli.prompt(true);
         } else {
             showHeader && console.log(this.colors.yellow(`You can sign in if you're already registered or sign up if it's your first visit.\n`));
             try {
                 const username = await this.#system.question('Username: ');
-
                 const passwordQuery = `Password: ${icons.secure} `;
                 const handler = muteStdout(this.#cli, passwordQuery);
                 const password = await this.#system.question(passwordQuery);

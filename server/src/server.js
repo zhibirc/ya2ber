@@ -65,16 +65,17 @@ function onConnection ( socket ) {
     });
 
     socket.on('close', hadError => {
+        const userName = connectedClientsMap.get(socket).username;
         connectedClientsMap.delete(socket);
         console.log('- client disconnected');
-        broadcast('someone left the chat', SYSTEM);
+        broadcast(`${userName} left the chat`, SYSTEM);
     });
 }
 
 function broadcast ( message, type ) {
     message = packMessage(message, type, {online: connectedClientsMap.size});
 
-    connectedClientsMap.forEach(socket => {
+    connectedClientsMap.forEach((_, socket) => {
         socket.write(message);
     });
 }

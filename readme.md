@@ -10,11 +10,16 @@ CLI chat to just chat. No ads, no statistics collection, no special terms, no un
 
 - [x] Shows how many visitors are in the chat. Currently, this info is shown in PS1 prompt.
 - [x] Chat members are notified when someone left.
-- [x] There are 2 message categories/types - system (including ones from server) and just chat messages.
+- [x] There are 3 message categories/types - system (including ones from server), authentication purposed and just chat messages.
 - [x] Client and server use JSON as data format for transmitting data to each other. [See](#json-message-schema) how.
 - [x] Entering of password is hidden (like many other CLI applications do, including `sudo`) and isn't stored in history.
+- [x] Authentication errors are well recognized because of verbose error messages.
+- [x] Client doesn't contain any validation logic for user credentials, this a server's responsibility.
+- [x] Server stores such specific user data: registration date, last activity date and last used IP address.<sup>*</sup>
 - [ ] Server doesn't store _any_ message history. Instead, client could store history locally as an option.
 - [ ] Prevention of _typosquatting_ in usernames.
+
+`*` actually, server stores last login date rather than last activity date for now
 
 ## CLI options
 
@@ -24,10 +29,9 @@ Example of client's message:
 
 ```json
 {
-    "message": "Hello, world!",
+    "message": "Hello, username!",
     "type": "message",
-    "command": "/username",
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    "command": "/username"
 }
 ```
 
@@ -35,9 +39,8 @@ Example of server's message:
 
 ```json
 {
-    "message": "someone left the chat",
+    "message": "username left the chat",
     "type": "system",
-    "online": 5,
-    "token": "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_a"
+    "online": 5
 }
 ```
