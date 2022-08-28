@@ -7,6 +7,7 @@ const reservedPatterns = [
     /^Anonymous$/i
 ];
 
+// 12-40 characters string, consists of lowercase and uppercase English letters, numbers and special symbols, where each group should be presented
 const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[`~!@#$%^&*()_+={}\[\]:;"'|\\/?.,<>-])[a-zA-Z\d`~!@#$%^&*()_+={}\[\]:;"'|\\/?.,<>-]{12,40}$/;
 
 const USERNAME_LENGTH_RANGE = [4, 20];
@@ -30,7 +31,7 @@ async function auth ( socket, data, db ) {
     const result = await db.findUser(login);
 
     if ( result ) { // login
-
+        return {message: authStatus.AUTH_SUCCESSFUL, username: login};
     } else { // registration
         // check basic constraints for login
         if ( login.length < USERNAME_LENGTH_RANGE[0] || login.length > USERNAME_LENGTH_RANGE[1] ) {
@@ -43,20 +44,16 @@ async function auth ( socket, data, db ) {
             return {message: authStatus.INVALID_PASSWORD_FORMAT, error: true};
         }
 
-        try {
-            await db.addUser({
-                user_name: login,
-                password_hash: hasher.hash(password),
-                // user_role: ROLE_USER,
-                signup_date: new Date(),
-                last_visit: new Date(),
-                last_ip: socket.remoteAddress
-            });
-        } catch ( exception ) {
-            console.error('error adding user');
-        }
+        await db.addUser({
+            user_name: login,
+            password_hash: hasher.hash(password),
+            // user_role: ROLE_USER,
+            signup_date: new Date(),
+            last_visit: new Date(),
+            last_ip: socket.remoteAddress
+        });
 
-        return {message: authStatus.SIGNUP_SUCCESSFUL, username: login};
+        return {message: authStatus.AUTH_SUCCESSFUL, username: login};
     }
 
 
