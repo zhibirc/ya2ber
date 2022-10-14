@@ -3,14 +3,17 @@
 const net = require('net');
 const readline = require('readline');
 const util = require('util');
+const { generateKeyPair } = require('./utilities/e2e-crypto');
 const icons = require('../../icons.json');
-const {muteStdout, unmuteStdout} = require('./tools/interceptor');
-const getDate = require('./tools/get-iso8601-date');
-const parseMessage = require('./tools/parse-message');
-const packMessage = require('./tools/pack-message');
+const {muteStdout, unmuteStdout} = require('./utilities/interceptor');
+const getDate = require('./utilities/get-iso8601-date');
+const parseMessage = require('./utilities/parse-message');
+const packMessage = require('./utilities/pack-message');
 const { message: { AUTH, MESSAGE, SYSTEM } } = require('./types');
 
+// TODO: move this to some kind of configuration
 const DEFAULT_USER_NAME = 'Anonymous';
+const ENCRYPTION_ALGORITHM = 'ed25519';
 
 class Client {
     #client;
@@ -36,7 +39,8 @@ class Client {
 
         this.#system = {
             port,
-            question: util.promisify(this.#cli.question).bind(this.#cli)
+            question: util.promisify(this.#cli.question).bind(this.#cli),
+            ...generateKeyPair(ENCRYPTION_ALGORITHM)
         };
 
         this.#client = net.createConnection({

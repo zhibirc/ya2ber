@@ -16,8 +16,7 @@ const connectionOptions = {
 };
 
 /**
- * Store client socket connections.
- * Could be used to indicate how many active clients are connected at the moment.
+ * Store client socket connections mapped to unique user identity info.
  * @type {Map}
  */
 const connectedClientsMap = new Map();
