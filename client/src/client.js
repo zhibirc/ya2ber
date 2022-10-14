@@ -13,7 +13,6 @@ const { message: { AUTH, MESSAGE, SYSTEM } } = require('./types');
 
 // TODO: move this to some kind of configuration
 const DEFAULT_USER_NAME = 'Anonymous';
-const ENCRYPTION_ALGORITHM = 'ed25519';
 
 class Client {
     #client;
@@ -40,7 +39,7 @@ class Client {
         this.#system = {
             port,
             question: util.promisify(this.#cli.question).bind(this.#cli),
-            ...generateKeyPair(ENCRYPTION_ALGORITHM)
+            keys: (async () => await generateKeyPair())()
         };
 
         this.#client = net.createConnection({

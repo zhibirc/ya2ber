@@ -2,6 +2,10 @@
 
 CLI chat to just chat. No ads, no statistics collection, no special terms, no unknown third-party services, no spies, no tricky interfaces... no bullshit.
 
+![Maintenance](https://img.shields.io/maintenance/yes/2022)
+
+---
+
 ## Etymology
 
 **ya2ber** is just derived from _yabber_, which is the synonym for _jabber_, which is the synonym for usual _talk_.
