@@ -12,6 +12,7 @@
     },
     "license": "GPL-3.0-only",
     "dependencies": {
-        "colors": "^1.4.0"
+        "colors": "^1.4.0",
+        "tweetnacl": "^1.0.3"
     }
 }
