@@ -1,6 +1,7 @@
 # top-most config file
 root = true
 
+# common settings
 [*]
 end_of_line = lf
 insert_final_newline = true
@@ -8,3 +9,18 @@ indent_style = space
 indent_size = 4
 charset = utf-8
 trim_trailing_whitespace = true
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[Makefile]
+indent_style = tab
+
+[*.{md,mdx}]
+trim_trailing_whitespace = false
+
+[*.xml]
+indent_size = 2
+
+[*.{json,webmanifest}]
+indent_size = 2

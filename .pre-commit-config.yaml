@@ -1,0 +1,25 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-json              # check JSON files for parseable syntax
+      - id: check-yaml              # check YAML files for parseable syntax
+      - id: check-merge-conflict    # check for files that contain merge conflict strings
+      - id: check-added-large-files # prevent giant files from being committed
+      - id: detect-private-key      # detect the presence of private keys
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.5
+    hooks:
+      - id: codespell
+        name: check for common misspellings
+        entry: codespell --skip="*.svg,**/package-lock.json,package-lock.json"
+  - repo: local
+    hooks:
+      - id: eslint
+        name: ESLint for Client and Server
+        entry: make lint
+        language: system
+      - id: tests
+        name: Tests for Client and Server
+        entry: make test
+        language: system
