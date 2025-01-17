@@ -125,3 +125,7 @@ make
 ```shell
 make help
 ```
+
+```shell
+docker-compose up -d
+```

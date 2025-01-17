@@ -39,3 +39,6 @@ test: ##@Commands Run tests for client and server sources
 
 run: ##@Commands Build and deploy local application infrastructure
 	npm start
+
+run-db:
+	docker-compose -f docker-compose.yml up -d db
