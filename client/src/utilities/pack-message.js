@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Prepare data to be sent as a message.
  *
@@ -19,4 +17,5 @@ function packMessage ( message, type, meta ) {
     return JSON.stringify(resultJSON);
 }
 
-module.exports = packMessage;
+
+export default packMessage;

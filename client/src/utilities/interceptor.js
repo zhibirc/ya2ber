@@ -20,7 +20,8 @@ function unmuteStdout ( cli, handler ) {
     cli._writeToOutput = handler;
 }
 
-module.exports = {
+
+export {
     muteStdout,
     unmuteStdout
 };

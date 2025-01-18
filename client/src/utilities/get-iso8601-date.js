@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = function () {
+export default function () {
     return new Date()
         .toISOString()
         .replace('T', '_')

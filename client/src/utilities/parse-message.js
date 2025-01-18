@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Parse/sanitize of given incoming message.
  *
@@ -25,4 +23,5 @@ function parseMessage ( input ) {
     };
 }
 
-module.exports = parseMessage;
+
+export default parseMessage;

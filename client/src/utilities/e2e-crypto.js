@@ -2,10 +2,12 @@
  * Basic set of methods for E2EE implementation.
  */
 
-const { subtle, getRandomValues } = require('crypto').webcrypto;
+import crypto from 'node:crypto';
+
+const { subtle, getRandomValues } = crypto.webcrypto;
 
 // TODO: use wrapping for exported keys
-exports.generateKeyPair = async function () {
+async function generateKeyPair () {
     const { publicKey, privateKey } = await subtle.generateKey(
         {
             // use elliptic curve Diffie-Hellman
@@ -22,10 +24,17 @@ exports.generateKeyPair = async function () {
     };
 };
 
-exports.encryptMessage = async function ( message, key ) {
+async function encryptMessage ( message, key ) {
     // TODO
 };
 
-exports.decryptMessage = async function ( message, key ) {
+async function decryptMessage ( message, key ) {
     // TODO
 };
+
+
+export {
+    generateKeyPair,
+    encryptMessage,
+    decryptMessage
+}
