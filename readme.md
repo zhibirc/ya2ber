@@ -1,8 +1,8 @@
 # ya2ber
 
-![maintenance](https://img.shields.io/maintenance/yes/2024.svg?style=flat)
-![node-version](https://img.shields.io/badge/node-~18.18.2-brightgreen.svg?style=flat)
-![npm-version](https://img.shields.io/badge/npm-~9.8.1-brightgreen.svg?style=flat)
+![maintenance](https://img.shields.io/maintenance/yes/2025.svg?style=flat)
+![node-version](https://img.shields.io/badge/node-~22.13.0-brightgreen.svg?style=flat)
+![npm-version](https://img.shields.io/badge/npm-~10.9.2-brightgreen.svg?style=flat)
 
 CLI chat to just chat. No ads, no statistics collection, no special terms, no unknown third-party services, no spies, no tricky interfaces... no bullshit.
 
